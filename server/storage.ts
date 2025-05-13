@@ -182,7 +182,8 @@ export class MemStorage implements IStorage {
           "Toss with olive oil, garlic, and fresh herbs."
         ],
         imageUrl: "https://images.unsplash.com/photo-1546549032-9571cd6b27df?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450",
-        prepTime: 25,
+        prepTime: 0,
+        cookTime: 20,
         tags: ["Italian", "Dinner", "Vegetarian"],
         authorId: 1
       },
@@ -209,7 +210,8 @@ export class MemStorage implements IStorage {
           "Garnish with fresh herbs before serving."
         ],
         imageUrl: "https://images.unsplash.com/photo-1525351484163-7529414344d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450",
-        prepTime: 15,
+        prepTime: 5,
+        cookTime: 15,
         tags: ["Breakfast", "Quick & Easy", "Vegetarian"],
         authorId: 1
       },
@@ -233,7 +235,8 @@ export class MemStorage implements IStorage {
           "Serve immediately."
         ],
         imageUrl: "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450",
-        prepTime: 10,
+        prepTime: 0,
+        cookTime: 10,
         tags: ["Breakfast", "Vegan", "Healthy"],
         authorId: 1
       },
@@ -261,7 +264,8 @@ export class MemStorage implements IStorage {
           "Season with salt and pepper before serving."
         ],
         imageUrl: "https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450",
-        prepTime: 40,
+        prepTime: 60,
+        cookTime: 40,
         tags: ["Italian", "Dinner", "Vegetarian"],
         authorId: 1
       },
@@ -291,7 +295,8 @@ export class MemStorage implements IStorage {
           "Cool on baking sheet for 5 minutes, then transfer to wire rack."
         ],
         imageUrl: "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450",
-        prepTime: 35,
+        prepTime: 0,
+        cookTime: 35,
         tags: ["Dessert", "Baking", "Kid-Friendly"],
         authorId: 1
       },
@@ -318,7 +323,8 @@ export class MemStorage implements IStorage {
           "Serve immediately."
         ],
         imageUrl: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450",
-        prepTime: 20,
+        prepTime: 10,
+        cookTime: 20,
         tags: ["Lunch", "Healthy", "High-Protein"],
         authorId: 1
       }

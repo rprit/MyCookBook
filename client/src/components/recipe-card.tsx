@@ -37,7 +37,7 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
           className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
         />
         <div className="absolute top-2 right-2 bg-white/90 px-2 py-1 rounded text-xs font-medium text-gray-700 flex items-center">
-          <Clock className="w-3 h-3 mr-1" /> {recipe.prepTime} min
+          <Clock className="w-3 h-3 mr-1" /> {recipe.prepTime} min prep + {recipe.cookTime} min cook
         </div>
       </div>
       

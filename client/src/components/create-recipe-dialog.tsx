@@ -42,7 +42,8 @@ const recipeFormSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters"),
   description: z.string().min(10, "Description must be at least 10 characters"),
   imageUrl: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
-  prepTime: z.coerce.number().min(1, "Prep time must be at least 1 minute"),
+  prepTime: z.coerce.number().min(0, "Prep time must be at least 1 minute"),
+  cookTime: z.coerce.number().min(1, "Cook time must be at least 1 minute"),
   ingredients: z.array(z.string()).min(1, "Add at least one ingredient"),
   instructions: z.array(z.string()).min(1, "Add at least one instruction step"),
   tags: z.array(z.string()).min(1, "Select at least one tag"),
@@ -71,7 +72,8 @@ export default function CreateRecipeDialog({
       name: "",
       description: "",
       imageUrl: "",
-      prepTime: 30,
+      prepTime: 0,
+      cookTime: 30,
       ingredients: [],
       instructions: [],
       tags: [],
@@ -210,6 +212,20 @@ export default function CreateRecipeDialog({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Preparation Time (minutes)</FormLabel>
+                      <FormControl>
+                        <Input type="number" min="0" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="cookTime"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Cooking Time (minutes)</FormLabel>
                       <FormControl>
                         <Input type="number" min="1" {...field} />
                       </FormControl>
