@@ -44,6 +44,7 @@ const recipeFormSchema = z.object({
   imageUrl: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
   prepTime: z.coerce.number().min(0, "Prep time must be at least 1 minute"),
   cookTime: z.coerce.number().min(1, "Cook time must be at least 1 minute"),
+  servings: z.coerce.number().min(1, "Servings must be at least 1"),
   ingredients: z.array(z.string()).min(1, "Add at least one ingredient"),
   instructions: z.array(z.string()).min(1, "Add at least one instruction step"),
   tags: z.array(z.string()).min(1, "Select at least one tag"),
@@ -74,6 +75,7 @@ export default function CreateRecipeDialog({
       imageUrl: "",
       prepTime: 0,
       cookTime: 30,
+      servings: 1,
       ingredients: [],
       instructions: [],
       tags: [],
@@ -191,21 +193,21 @@ export default function CreateRecipeDialog({
                 )}
               />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="imageUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Image URL (Optional)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://example.com/image.jpg" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <FormField
+                control={form.control}
+                name="imageUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Image URL (Optional)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://example.com/image.jpg" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
                 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="prepTime"
@@ -226,6 +228,20 @@ export default function CreateRecipeDialog({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Cooking Time (minutes)</FormLabel>
+                      <FormControl>
+                        <Input type="number" min="1" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="servings"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Servings</FormLabel>
                       <FormControl>
                         <Input type="number" min="1" {...field} />
                       </FormControl>

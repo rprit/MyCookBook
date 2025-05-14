@@ -184,6 +184,7 @@ export class MemStorage implements IStorage {
         imageUrl: "https://images.unsplash.com/photo-1546549032-9571cd6b27df?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450",
         prepTime: 0,
         cookTime: 20,
+        servings: 4,
         tags: ["Italian", "Dinner", "Vegetarian"],
         authorId: 1
       },
@@ -212,6 +213,7 @@ export class MemStorage implements IStorage {
         imageUrl: "https://images.unsplash.com/photo-1525351484163-7529414344d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450",
         prepTime: 5,
         cookTime: 15,
+        servings: 2,
         tags: ["Breakfast", "Quick & Easy", "Vegetarian"],
         authorId: 1
       },
@@ -237,6 +239,7 @@ export class MemStorage implements IStorage {
         imageUrl: "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450",
         prepTime: 0,
         cookTime: 10,
+        servings: 1,
         tags: ["Breakfast", "Vegan", "Healthy"],
         authorId: 1
       },
@@ -266,6 +269,7 @@ export class MemStorage implements IStorage {
         imageUrl: "https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450",
         prepTime: 60,
         cookTime: 40,
+        servings: 2,
         tags: ["Italian", "Dinner", "Vegetarian"],
         authorId: 1
       },
@@ -297,6 +301,7 @@ export class MemStorage implements IStorage {
         imageUrl: "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450",
         prepTime: 0,
         cookTime: 35,
+        servings: 24,
         tags: ["Dessert", "Baking", "Kid-Friendly"],
         authorId: 1
       },
@@ -325,6 +330,7 @@ export class MemStorage implements IStorage {
         imageUrl: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450",
         prepTime: 10,
         cookTime: 20,
+        servings: 4,
         tags: ["Lunch", "Healthy", "High-Protein"],
         authorId: 1
       }
