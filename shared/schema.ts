@@ -39,8 +39,17 @@ export const insertRecipeSchema = createInsertSchema(recipes).omit({
   ratingCount: true,
 });
 
+export const updateRecipeSchema = createInsertSchema(recipes).omit({
+  id: true,
+  createdAt: true,
+  rating: true,
+  ratingCount: true,
+  authorId: true,
+});
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 
 export type Recipe = typeof recipes.$inferSelect;
 export type InsertRecipe = z.infer<typeof insertRecipeSchema>;
+export type UpdateRecipe = z.infer<typeof updateRecipeSchema>;
