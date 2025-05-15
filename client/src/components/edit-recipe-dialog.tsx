@@ -285,11 +285,18 @@ export default function EditRecipeDialog({
                         <Plus className="h-4 w-4" />
                       </Button>
                     </div>
-                    
-                    <div className="mt-2 space-y-2">
+                      <div className="mt-2 space-y-2">
                       {field.value.map((ingredient, index) => (
-                        <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
-                          <span>{ingredient}</span>
+                        <div key={index} className="flex items-center gap-2">
+                          <Input
+                            value={ingredient}
+                            onChange={(e) => {
+                              const newIngredients = [...field.value];
+                              newIngredients[index] = e.target.value;
+                              form.setValue("ingredients", newIngredients);
+                            }}
+                            className="flex-1"
+                          />
                           <Button
                             type="button"
                             variant="ghost"
@@ -326,14 +333,19 @@ export default function EditRecipeDialog({
                         <Plus className="h-4 w-4" />
                       </Button>
                     </div>
-                    
-                    <div className="mt-2 space-y-2">
+                      <div className="mt-2 space-y-2">
                       {field.value.map((instruction, index) => (
-                        <div key={index} className="flex items-start justify-between bg-gray-50 p-2 rounded">
-                          <div>
-                            <span className="font-bold mr-2">{index + 1}.</span>
-                            <span>{instruction}</span>
-                          </div>
+                        <div key={index} className="flex items-start gap-2">
+                          <div className="font-bold mt-2 min-w-[24px]">{index + 1}.</div>
+                          <Textarea
+                            value={instruction}
+                            onChange={(e) => {
+                              const newInstructions = [...field.value];
+                              newInstructions[index] = e.target.value;
+                              form.setValue("instructions", newInstructions);
+                            }}
+                            className="flex-1 min-h-[60px]"
+                          />
                           <Button
                             type="button"
                             variant="ghost"
