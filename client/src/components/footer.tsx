@@ -91,7 +91,7 @@ export default function Footer() {
         </div>
         
         <div className="border-t border-gray-800 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-sm text-gray-400">© 2023 My Cook Book. All rights reserved.</p>
+          <p className="text-sm text-gray-400">© 2025 My Cook Book. All rights reserved.</p>
           <div className="flex space-x-4 mt-4 md:mt-0">
             <a href="#" className="text-sm text-gray-400 hover:text-primary transition-colors">Privacy Policy</a>
             <a href="#" className="text-sm text-gray-400 hover:text-primary transition-colors">Terms of Service</a>
