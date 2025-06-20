@@ -165,7 +165,6 @@ export class MemStorage implements IStorage {
         description: "A simple yet delicious pasta dish made with fresh basil, garlic, and high-quality olive oil. Perfect for a quick weeknight dinner.",
         ingredients: [
           "2 cups all-purpose flour",
-          "3 large eggs",
           "1 tablespoon olive oil",
           "½ teaspoon salt",
           "¼ cup fresh basil, chopped",
@@ -173,7 +172,7 @@ export class MemStorage implements IStorage {
         ],
         instructions: [
           "Mix flour and salt in a large bowl.",
-          "Make a well in the center and add eggs and olive oil.",
+          "Make a well in the center and add olive oil.",
           "Gradually mix the flour into the wet ingredients.",
           "Knead the dough for 8-10 minutes until smooth.",
           "Let rest for 30 minutes covered with a towel.",
@@ -189,12 +188,11 @@ export class MemStorage implements IStorage {
         authorId: 1
       },
       {
-        name: "Avocado Toast with Poached Egg",
-        description: "Creamy avocado on toasted sourdough bread topped with a perfectly poached egg. A nutritious breakfast ready in minutes.",
+        name: "Avocado Toast",
+        description: "Creamy avocado on toasted sourdough bread. A nutritious breakfast ready in minutes.",
         ingredients: [
           "1 ripe avocado",
           "2 slices sourdough bread",
-          "2 eggs",
           "1 tablespoon white vinegar",
           "Salt and pepper to taste",
           "Red pepper flakes (optional)",
@@ -204,13 +202,11 @@ export class MemStorage implements IStorage {
           "Toast the sourdough bread until golden and crispy.",
           "Mash the avocado in a bowl and season with salt and pepper.",
           "Bring a pot of water to a simmer, add vinegar.",
-          "Crack egg into a small bowl, then slide into the simmering water.",
-          "Poach for 3-4 minutes, then remove with a slotted spoon.",
-          "Spread mashed avocado on toast and top with poached egg.",
+          "Spread mashed avocado on toast.",
           "Season with salt, pepper, and red pepper flakes if desired.",
           "Garnish with fresh herbs before serving."
         ],
-        imageUrl: "https://images.unsplash.com/photo-1525351484163-7529414344d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450",
+        imageUrl: "https://images.unsplash.com/photo-1631311915775-e8f4250a7d4e?q=80&w=1016&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         prepTime: 5,
         cookTime: 15,
         servings: 2,
@@ -236,7 +232,7 @@ export class MemStorage implements IStorage {
           "Drizzle with additional honey if desired.",
           "Serve immediately."
         ],
-        imageUrl: "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450",
+        imageUrl: "https://plus.unsplash.com/premium_photo-1726718415822-ff58dbb43e17?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         prepTime: 0,
         cookTime: 10,
         servings: 1,
@@ -306,32 +302,31 @@ export class MemStorage implements IStorage {
         authorId: 1
       },
       {
-        name: "Grilled Chicken Salad",
-        description: "A healthy and filling salad with grilled chicken, mixed greens, avocado, and homemade vinaigrette dressing.",
+        name: "Grilled Tofu Salad",
+        description: "A vibrant and filling salad with grilled marinated tofu, mixed greens, avocado, and a homemade lemon-tahini dressing.",
         ingredients: [
-          "2 boneless, skinless chicken breasts",
+          "1 block firm tofu, pressed and sliced",
           "6 cups mixed salad greens",
           "1 avocado, sliced",
           "1 cup cherry tomatoes, halved",
-          "¼ cup red onion, thinly sliced",
-          "¼ cup crumbled feta cheese",
-          "For the dressing: 3 tbsp olive oil, 1 tbsp lemon juice, 1 tsp Dijon mustard, salt and pepper"
+          "1/4 cup red onion, thinly sliced",
+          "1/4 cup roasted sunflower seeds",
+          "For the marinade: 2 tbsp soy sauce, 1 tbsp olive oil, 1 tsp smoked paprika, 1 tsp garlic powder",
+          "For the dressing: 3 tbsp tahini, 2 tbsp lemon juice, 1 tbsp maple syrup, 1 tbsp water, salt and pepper"
         ],
         instructions: [
-          "Season chicken breasts with salt, pepper, and olive oil.",
-          "Grill chicken for 6-7 minutes per side until fully cooked.",
-          "Let chicken rest for 5 minutes, then slice.",
-          "In a large bowl, combine mixed greens, tomatoes, and red onion.",
-          "Whisk together olive oil, lemon juice, mustard, salt, and pepper.",
-          "Toss salad with dressing.",
-          "Top with sliced chicken, avocado, and feta cheese.",
-          "Serve immediately."
+          "Mix soy sauce, olive oil, smoked paprika, and garlic powder in a bowl. Marinate tofu slices for at least 15 minutes.",
+          "Grill or pan-sear tofu slices for 3-4 minutes per side until golden and slightly crispy.",
+          "In a large bowl, combine mixed greens, tomatoes, red onion, and sunflower seeds.",
+          "Whisk together tahini, lemon juice, maple syrup, water, salt, and pepper to make the dressing.",
+          "Top salad with grilled tofu and avocado slices.",
+          "Drizzle with lemon-tahini dressing and serve immediately."
         ],
-        imageUrl: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450",
-        prepTime: 10,
-        cookTime: 20,
+        imageUrl: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        prepTime: 15,
+        cookTime: 10,
         servings: 4,
-        tags: ["Lunch", "Healthy", "High-Protein"],
+        tags: ["Lunch", "Healthy", "Vegan", "High-Protein"],
         authorId: 1
       }
     ];
