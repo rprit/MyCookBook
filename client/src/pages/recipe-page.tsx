@@ -10,12 +10,17 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "wouter";
 import EditRecipeDialog from "@/components/edit-recipe-dialog";
+import { useFavorites } from "@/context/favorites-context";
+import { useToast } from "@/hooks/use-toast";
+import FavoriteButton from "@/components/favorite-button";
 
 export default function RecipePage() {
   const params = useParams();
   const id = params.id;
   const [, setLocation] = useLocation();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const { toast } = useToast();
 
   const { data: recipe, isLoading } = useQuery<Recipe>({
     queryKey: ["recipe", id],
@@ -48,10 +53,11 @@ export default function RecipePage() {
     );
   }
 
+  const recipeId = String(recipe.id);
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      
       <main className="flex-grow">
         <div className="container mx-auto px-4 py-8 max-w-4xl">
           <div className="flex justify-between items-center mb-6">
@@ -69,10 +75,11 @@ export default function RecipePage() {
 
           <Card className="p-6 space-y-8">
             {/* Recipe Header */}
-            <div className="space-y-4">
-              <h1 className="text-4xl font-bold text-gray-900">{recipe.name}</h1>
-              <p className="text-lg text-gray-600">{recipe.description}</p>
+            <div className="flex items-center justify-between space-y-4">
+              <h1 className="text-4xl font-bold text-gray-900 flex-1">{recipe.name}</h1>
+              <FavoriteButton recipeId={recipeId} showToast iconSize={28} className="ml-4" />
             </div>
+            <p className="text-lg text-gray-600">{recipe.description}</p>
 
             {/* Recipe Image */}
             <div className="aspect-video w-full overflow-hidden rounded-lg">
@@ -149,9 +156,7 @@ export default function RecipePage() {
           </Card>
         </div>
       </main>
-      
       <Footer />
-
       {recipe && (
         <EditRecipeDialog
           recipe={recipe}

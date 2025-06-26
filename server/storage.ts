@@ -328,6 +328,28 @@ export class MemStorage implements IStorage {
         servings: 4,
         tags: ["Lunch", "Healthy", "Vegan", "High-Protein"],
         authorId: 1
+      },
+      {
+        name: "Lemonade",
+        description: "Refreshing drink perfect for a summer day!",
+        ingredients: [
+          "1 lemon",
+          "Ice cube (optional)",
+          "A pinch of salt",
+          "Sugar or honey as per taste"
+        ],
+        instructions: [
+          "Slice a lemon and squeeze the juice into a glass of water.",
+          "Add a spoon or two of sugar, honey or any other sweetener as per preference.",
+          "Add a pinch of salt and stir.",
+          "Serve it as is or with an ice cube."
+        ],
+        imageUrl: "https://plus.unsplash.com/premium_photo-1664391804722-cb3f2d439d7f?q=80&w=1629&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        prepTime: 0,
+        cookTime: 5,
+        servings: 2,
+        tags: ["Quick & Easy", "Kid-Friendly", "Healthy"],
+        authorId: 1
       }
     ];
 

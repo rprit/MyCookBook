@@ -1,29 +1,20 @@
 import { Recipe } from "@shared/schema";
-import { useState } from "react";
+import { useFavorites } from "@/context/favorites-context";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Heart, Clock } from "lucide-react";
+import { Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useLocation } from "wouter";
+import FavoriteButton from "@/components/favorite-button";
 
 interface RecipeCardProps {
   recipe: Recipe;
 }
 
 export default function RecipeCard({ recipe }: RecipeCardProps) {
-  const [isSaved, setIsSaved] = useState(false);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   
-  const handleSaveRecipe = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent navigation when clicking the save button
-    setIsSaved(!isSaved);
-    toast({
-      title: isSaved ? "Recipe removed" : "Recipe saved",
-      description: isSaved ? "Recipe removed from your favorites" : "Recipe added to your favorites",
-    });
-  };
-
   return (
     <Link href={`/recipe/${recipe.id}`}>
       <a className="block">
@@ -40,16 +31,9 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
           </div>
           
           <CardContent className="p-4 flex-grow flex flex-col">
-            <div className="flex justify-between items-start mb-2">
+            <div className="flex justify-between items-center  mb-2">
               <h3 className="font-semibold text-lg text-gray-900 truncate">{recipe.name}</h3>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className={isSaved ? "text-primary" : "text-gray-400"}
-                onClick={handleSaveRecipe}
-              >
-                <Heart className={`h-5 w-5 ${isSaved ? "fill-current" : ""}`} />
-              </Button>
+              <FavoriteButton recipeId={String(recipe.id)} showToast iconSize={28} />
             </div>
             
             <p className="text-gray-600 text-sm line-clamp-2 mb-3">
