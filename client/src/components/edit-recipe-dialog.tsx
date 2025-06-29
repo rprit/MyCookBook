@@ -19,7 +19,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { X, Loader2, Plus } from "lucide-react";
+import { X, Loader2, Plus, GripVertical } from "lucide-react";
+import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 
 // Available tags for recipes
 const availableTags = [
@@ -68,6 +69,8 @@ export default function EditRecipeDialog({
   const { toast } = useToast();
   const [ingredientInput, setIngredientInput] = useState("");
   const [instructionInput, setInstructionInput] = useState("");
+  const [editingIngredientIndex, setEditingIngredientIndex] = useState<number | null>(null);
+  const [editingInstructionIndex, setEditingInstructionIndex] = useState<number | null>(null);
   const queryClient = useQueryClient();
 
   const form = useForm<RecipeFormValues>({
@@ -156,6 +159,62 @@ export default function EditRecipeDialog({
       form.setValue("tags", currentTags.filter(t => t !== tag));
     } else {
       form.setValue("tags", [...currentTags, tag]);
+    }
+  };
+
+  // Restrict drag transform to vertical movement only (for react-beautiful-dnd style transform string)
+  function restrictToVerticalOnly(transform: string | undefined): string | undefined {
+    if (!transform) return undefined;
+    const match = transform.match(/translate\(([-\d.]+)px,\s*([-\d.]+)px\)/);
+    if (!match) return transform;
+    const y = match[2];
+    return `translate(0px, ${y}px)`;
+  }
+
+  // Handler for drag end for ingredients
+  const onDragEndIngredients = (result: DropResult) => {
+    if (!result.destination) return;
+    const items = Array.from(form.getValues().ingredients);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+    form.setValue("ingredients", items);
+    if (editingIngredientIndex !== null) {
+      if (result.source.index === editingIngredientIndex) {
+        setEditingIngredientIndex(result.destination.index);
+      } else if (
+        result.source.index < editingIngredientIndex &&
+        result.destination.index >= editingIngredientIndex
+      ) {
+        setEditingIngredientIndex(editingIngredientIndex - 1);
+      } else if (
+        result.source.index > editingIngredientIndex &&
+        result.destination.index <= editingIngredientIndex
+      ) {
+        setEditingIngredientIndex(editingIngredientIndex + 1);
+      }
+    }
+  };
+  // Handler for drag end for instructions
+  const onDragEndInstructions = (result: DropResult) => {
+    if (!result.destination) return;
+    const items = Array.from(form.getValues().instructions);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+    form.setValue("instructions", items);
+    if (editingInstructionIndex !== null) {
+      if (result.source.index === editingInstructionIndex) {
+        setEditingInstructionIndex(result.destination.index);
+      } else if (
+        result.source.index < editingInstructionIndex &&
+        result.destination.index >= editingInstructionIndex
+      ) {
+        setEditingInstructionIndex(editingInstructionIndex - 1);
+      } else if (
+        result.source.index > editingInstructionIndex &&
+        result.destination.index <= editingInstructionIndex
+      ) {
+        setEditingInstructionIndex(editingInstructionIndex + 1);
+      }
     }
   };
 
@@ -285,29 +344,54 @@ export default function EditRecipeDialog({
                         <Plus className="h-4 w-4" />
                       </Button>
                     </div>
-                      <div className="mt-2 space-y-2">
-                      {field.value.map((ingredient, index) => (
-                        <div key={index} className="flex items-center gap-2">
-                          <Input
-                            value={ingredient}
-                            onChange={(e) => {
-                              const newIngredients = [...field.value];
-                              newIngredients[index] = e.target.value;
-                              form.setValue("ingredients", newIngredients);
-                            }}
-                            className="flex-1"
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeIngredient(index)}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
+                      <DragDropContext onDragEnd={onDragEndIngredients}>
+                        <Droppable droppableId="ingredients-droppable" direction="vertical">
+                          {(provided) => (
+                            <div className="mt-2 space-y-2" ref={provided.innerRef} {...provided.droppableProps}>
+                              {field.value.map((ingredient, index) => (
+                                <Draggable key={index} draggableId={`ingredient-${index}`} index={index}>
+                                  {(provided, snapshot) => (
+                                    <div
+                                      ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      {...provided.dragHandleProps}
+                                      style={{
+                                        ...provided.draggableProps.style,
+                                        top: snapshot.isDragging ? 'auto' : undefined,
+                                        left: snapshot.isDragging ? 'auto' : undefined,
+                                        transform: restrictToVerticalOnly(
+                                          provided.draggableProps.style?.transform
+                                        ),
+                                      }}
+                                      className={`flex items-center justify-between bg-gray-50 p-2 rounded ${snapshot.isDragging ? "ring-2 ring-primary" : ""}`}
+                                    >
+                                      <span {...provided.dragHandleProps} className="cursor-grab mr-2 text-gray-400"><GripVertical className="h-4 w-4" /></span>
+                                      <Input
+                                        value={ingredient}
+                                        onChange={(e) => {
+                                          const newIngredients = [...field.value];
+                                          newIngredients[index] = e.target.value;
+                                          form.setValue("ingredients", newIngredients);
+                                        }}
+                                        className="flex-1"
+                                      />
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => removeIngredient(index)}
+                                      >
+                                        <X className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  )}
+                                </Draggable>
+                              ))}
+                              {provided.placeholder}
+                            </div>
+                          )}
+                        </Droppable>
+                      </DragDropContext>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -333,30 +417,55 @@ export default function EditRecipeDialog({
                         <Plus className="h-4 w-4" />
                       </Button>
                     </div>
-                      <div className="mt-2 space-y-2">
-                      {field.value.map((instruction, index) => (
-                        <div key={index} className="flex items-start gap-2">
-                          <div className="font-bold mt-2 min-w-[24px]">{index + 1}.</div>
-                          <Textarea
-                            value={instruction}
-                            onChange={(e) => {
-                              const newInstructions = [...field.value];
-                              newInstructions[index] = e.target.value;
-                              form.setValue("instructions", newInstructions);
-                            }}
-                            className="flex-1 min-h-[60px]"
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeInstruction(index)}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
+                      <DragDropContext onDragEnd={onDragEndInstructions}>
+                        <Droppable droppableId="instructions-droppable" direction="vertical">
+                          {(provided) => (
+                            <div className="mt-2 space-y-2" ref={provided.innerRef} {...provided.droppableProps}>
+                              {field.value.map((instruction, index) => (
+                                <Draggable key={index} draggableId={`instruction-${index}`} index={index}>
+                                  {(provided, snapshot) => (
+                                    <div
+                                      ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      {...provided.dragHandleProps}
+                                      style={{
+                                        ...provided.draggableProps.style,
+                                        top: snapshot.isDragging ? 'auto' : undefined,
+                                        left: snapshot.isDragging ? 'auto' : undefined,
+                                        transform: restrictToVerticalOnly(
+                                          provided.draggableProps.style?.transform
+                                        ),
+                                      }}
+                                      className={`flex items-start justify-between bg-gray-50 p-2 rounded ${snapshot.isDragging ? "ring-2 ring-primary" : ""}`}
+                                    >
+                                      <span {...provided.dragHandleProps} className="cursor-grab mr-2 text-gray-400"><GripVertical className="h-4 w-4" /></span>
+                                      <div className="font-bold mt-2 min-w-[24px]">{index + 1}.</div>
+                                      <Textarea
+                                        value={instruction}
+                                        onChange={(e) => {
+                                          const newInstructions = [...field.value];
+                                          newInstructions[index] = e.target.value;
+                                          form.setValue("instructions", newInstructions);
+                                        }}
+                                        className="flex-1 min-h-[60px]"
+                                      />
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => removeInstruction(index)}
+                                      >
+                                        <X className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  )}
+                                </Draggable>
+                              ))}
+                              {provided.placeholder}
+                            </div>
+                          )}
+                        </Droppable>
+                      </DragDropContext>
                     <FormMessage />
                   </FormItem>
                 )}

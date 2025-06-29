@@ -19,7 +19,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { X, Loader2, Plus, Edit } from "lucide-react";
+import { X, Loader2, Plus, Edit, GripVertical } from "lucide-react";
+import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 
 // Available tags for recipes
 const availableTags = [
@@ -154,6 +155,104 @@ export default function CreateRecipeDialog({
     }
   };
 
+  // Handler for drag end for ingredients
+  const onDragEndIngredients = (result: DropResult) => {
+    if (!result.destination) return;
+    const items = Array.from(form.getValues().ingredients);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+    form.setValue("ingredients", items);
+    if (editingIngredientIndex !== null) {
+      if (result.source.index === editingIngredientIndex) {
+        setEditingIngredientIndex(result.destination.index);
+      } else if (
+        result.source.index < editingIngredientIndex &&
+        result.destination.index >= editingIngredientIndex
+      ) {
+        setEditingIngredientIndex(editingIngredientIndex - 1);
+      } else if (
+        result.source.index > editingIngredientIndex &&
+        result.destination.index <= editingIngredientIndex
+      ) {
+        setEditingIngredientIndex(editingIngredientIndex + 1);
+      }
+    }
+  };
+
+  // Handler for drag end for instructions
+  const onDragEndInstructions = (result: DropResult) => {
+    if (!result.destination) return;
+    const items = Array.from(form.getValues().instructions);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+    form.setValue("instructions", items);
+    if (editingInstructionIndex !== null) {
+      if (result.source.index === editingInstructionIndex) {
+        setEditingInstructionIndex(result.destination.index);
+      } else if (
+        result.source.index < editingInstructionIndex &&
+        result.destination.index >= editingInstructionIndex
+      ) {
+        setEditingInstructionIndex(editingInstructionIndex - 1);
+      } else if (
+        result.source.index > editingInstructionIndex &&
+        result.destination.index <= editingInstructionIndex
+      ) {
+        setEditingInstructionIndex(editingInstructionIndex + 1);
+      }
+    }
+  };
+
+  // Handler to swap ingredient up
+  const swapIngredientUp = (index: number) => {
+    if (index <= 0) return;
+    const items = [...form.getValues().ingredients];
+    [items[index - 1], items[index]] = [items[index], items[index - 1]];
+    form.setValue("ingredients", items);
+    if (editingIngredientIndex === index) setEditingIngredientIndex(index - 1);
+    else if (editingIngredientIndex === index - 1) setEditingIngredientIndex(index);
+  };
+  // Handler to swap ingredient down
+  const swapIngredientDown = (index: number) => {
+    const items = [...form.getValues().ingredients];
+    if (index >= items.length - 1) return;
+    [items[index], items[index + 1]] = [items[index + 1], items[index]];
+    form.setValue("ingredients", items);
+    if (editingIngredientIndex === index) setEditingIngredientIndex(index + 1);
+    else if (editingIngredientIndex === index + 1) setEditingIngredientIndex(index);
+  };
+  // Handler to swap instruction up
+  const swapInstructionUp = (index: number) => {
+    if (index <= 0) return;
+    const items = [...form.getValues().instructions];
+    [items[index - 1], items[index]] = [items[index], items[index - 1]];
+    form.setValue("instructions", items);
+    if (editingInstructionIndex === index) setEditingInstructionIndex(index - 1);
+    else if (editingInstructionIndex === index - 1) setEditingInstructionIndex(index);
+  };
+  // Handler to swap instruction down
+  const swapInstructionDown = (index: number) => {
+    const items = [...form.getValues().instructions];
+    if (index >= items.length - 1) return;
+    [items[index], items[index + 1]] = [items[index + 1], items[index]];
+    form.setValue("instructions", items);
+    if (editingInstructionIndex === index) setEditingInstructionIndex(index + 1);
+    else if (editingInstructionIndex === index + 1) setEditingInstructionIndex(index);
+  };
+
+  // Restrict drag transform to vertical movement only (for react-beautiful-dnd style transform string)
+  function restrictToVerticalOnly(transform: string | undefined): string | undefined {
+    if (!transform) return undefined;
+    
+    // Example: "translate(0px, 24px)" or "translate3d(0px, 24px, 0px)"
+    //const match = transform.match(/translate(?:3d)?\(\s*([-\d.]+)px,\s*([-\d.]+)px(?:,\s*([-\d.]+)px)?\)/);
+    const match = transform.match(/translate\(([-\d.]+)px,\s*([-\d.]+)px\)/);
+    if (!match) return transform;
+    const y = match[2];
+    // Only apply vertical translation
+    return `translate(0px, ${y}px)`;
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
@@ -280,59 +379,83 @@ export default function CreateRecipeDialog({
                         <Plus className="h-4 w-4" />
                       </Button>
                     </div>
-                    
-                    <div className="mt-2 space-y-2">
-                      {field.value.map((ingredient, index) => (
-                        <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
-                          {editingIngredientIndex === index ? (
-                            <>
-                              <Input
-                                value={tempIngredient}
-                                onChange={e => setTempIngredient(e.target.value)}
-                                className="flex-1 mr-2"
-                                autoFocus
-                              />
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  const newIngredients = [...field.value];
-                                  newIngredients[index] = tempIngredient;
-                                  form.setValue("ingredients", newIngredients);
-                                  setEditingIngredientIndex(null);
-                                }}
-                              >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                              </Button>
-                            </>
-                          ) : (
-                            <>
-                              <span className="flex-1 mr-2">{ingredient}</span>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setEditingIngredientIndex(index);
-                                  setTempIngredient(ingredient);
-                                }}
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                            </>
-                          )}
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeIngredient(index)}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
+                    <DragDropContext onDragEnd={onDragEndIngredients}>
+                      <Droppable droppableId="ingredients-droppable" direction="vertical">
+                        {(provided) => (
+                          <div className="mt-2 space-y-2" ref={provided.innerRef} {...provided.droppableProps}>
+                            {field.value.map((ingredient, index) => (
+                              <Draggable key={index} draggableId={`ingredient-${index}`} index={index}>
+                                {(provided, snapshot) => (
+                                  <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                    style={{
+                                      ...provided.draggableProps.style,
+                                      top: snapshot.isDragging ? 'auto' : undefined,
+                                      left: snapshot.isDragging ? 'auto' : undefined,
+                                      transform: restrictToVerticalOnly(
+                                        provided.draggableProps.style?.transform
+                                      ),
+                                    }}
+                                    className={`flex items-center justify-between bg-gray-50 p-2 rounded ${snapshot.isDragging ? "ring-2 ring-primary" : ""}`}
+                                  >
+                                    <span {...provided.dragHandleProps} className="cursor-grab mr-2 text-gray-400"><GripVertical className="h-4 w-4" /></span>
+                                    {editingIngredientIndex === index ? (
+                                      <>
+                                        <Input
+                                          value={tempIngredient}
+                                          onChange={e => setTempIngredient(e.target.value)}
+                                          className="flex-1 mr-2"
+                                          autoFocus
+                                        />
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => {
+                                            const newIngredients = [...field.value];
+                                            newIngredients[index] = tempIngredient;
+                                            form.setValue("ingredients", newIngredients);
+                                            setEditingIngredientIndex(null);
+                                          }}
+                                        >
+                                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                                        </Button>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <span className="flex-1 mr-2">{ingredient}</span>
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => {
+                                            setEditingIngredientIndex(index);
+                                            setTempIngredient(ingredient);
+                                          }}
+                                        >
+                                          <Edit className="h-4 w-4" />
+                                        </Button>
+                                      </>
+                                    )}
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => removeIngredient(index)}
+                                    >
+                                      <X className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                )}
+                              </Draggable>
+                            ))}
+                            {provided.placeholder}
+                          </div>
+                        )}
+                      </Droppable>
+                    </DragDropContext>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -358,61 +481,86 @@ export default function CreateRecipeDialog({
                         <Plus className="h-4 w-4" />
                       </Button>
                     </div>
-                    <div className="mt-2 space-y-2">
-                      {field.value.map((instruction, index) => (
-                        <div key={index} className="flex items-start justify-between bg-gray-50 p-2 rounded">
-                          <div className="flex-1 flex items-center">
-                            <span className="font-bold mr-2">{index + 1}.</span>
-                            {editingInstructionIndex === index ? (
-                              <Textarea
-                                value={tempInstruction}
-                                onChange={e => setTempInstruction(e.target.value)}
-                                className="flex-1 resize-none mr-2"
-                                rows={1}
-                                autoFocus
-                              />
-                            ) : (
-                              <span>{instruction}</span>
-                            )}
+                    <DragDropContext onDragEnd={onDragEndInstructions}>
+                      <Droppable droppableId="instructions-droppable"  direction="vertical">
+                        {(provided) => (
+                          <div className="mt-2 space-y-2" ref={provided.innerRef} {...provided.droppableProps}>
+                            {field.value.map((instruction, index) => (
+                              <Draggable key={index} draggableId={`instruction-${index}`} index={index}>
+                                {(provided, snapshot) => (
+                                  <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                    style={{
+                                      ...provided.draggableProps.style,
+                                      top: snapshot.isDragging ? 'auto' : undefined,
+                                      left: snapshot.isDragging ? 'auto' : undefined,
+                                      transform: restrictToVerticalOnly(
+                                        provided.draggableProps.style?.transform
+                                      ),
+                                    }}
+                                    className={`flex items-start justify-between bg-gray-50 p-2 rounded ${snapshot.isDragging ? "ring-2 ring-primary" : ""}`}
+                                  >
+                                    <span {...provided.dragHandleProps} className="cursor-grab mr-2 text-gray-400"><GripVertical className="h-4 w-4" /></span>
+                                    <div className="flex-1 flex items-center">
+                                      <span className="font-bold mr-2">{index + 1}.</span>
+                                      {editingInstructionIndex === index ? (
+                                        <Textarea
+                                          value={tempInstruction}
+                                          onChange={e => setTempInstruction(e.target.value)}
+                                          className="flex-1 resize-none mr-2"
+                                          rows={1}
+                                          autoFocus
+                                        />
+                                      ) : (
+                                        <span>{instruction}</span>
+                                      )}
+                                    </div>
+                                    {editingInstructionIndex === index ? (
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => {
+                                          const newInstructions = [...field.value];
+                                          newInstructions[index] = tempInstruction;
+                                          form.setValue("instructions", newInstructions);
+                                          setEditingInstructionIndex(null);
+                                        }}
+                                      >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                                      </Button>
+                                    ) : (
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => {
+                                          setEditingInstructionIndex(index);
+                                          setTempInstruction(instruction);
+                                        }}
+                                      >
+                                        <Edit className="h-4 w-4" />
+                                      </Button>
+                                    )}
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => removeInstruction(index)}
+                                    >
+                                      <X className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                )}
+                              </Draggable>
+                            ))}
+                            {provided.placeholder}
                           </div>
-                          {editingInstructionIndex === index ? (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                const newInstructions = [...field.value];
-                                newInstructions[index] = tempInstruction;
-                                form.setValue("instructions", newInstructions);
-                                setEditingInstructionIndex(null);
-                              }}
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                            </Button>
-                          ) : (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                setEditingInstructionIndex(index);
-                                setTempInstruction(instruction);
-                              }}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          )}
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeInstruction(index)}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
+                        )}
+                      </Droppable>
+                    </DragDropContext>
                     <FormMessage />
                   </FormItem>
                 )}
