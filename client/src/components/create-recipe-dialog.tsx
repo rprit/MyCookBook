@@ -19,7 +19,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { X, Loader2, Plus } from "lucide-react";
+import { X, Loader2, Plus, Edit } from "lucide-react";
 
 // Available tags for recipes
 const availableTags = [
@@ -66,6 +66,10 @@ export default function CreateRecipeDialog({
   const { toast } = useToast();
   const [ingredientInput, setIngredientInput] = useState("");
   const [instructionInput, setInstructionInput] = useState("");
+  const [editingIngredientIndex, setEditingIngredientIndex] = useState<number | null>(null);
+  const [editingInstructionIndex, setEditingInstructionIndex] = useState<number | null>(null);
+  const [tempIngredient, setTempIngredient] = useState("");
+  const [tempInstruction, setTempInstruction] = useState("");
 
   const form = useForm<RecipeFormValues>({
     resolver: zodResolver(recipeFormSchema),
@@ -280,7 +284,44 @@ export default function CreateRecipeDialog({
                     <div className="mt-2 space-y-2">
                       {field.value.map((ingredient, index) => (
                         <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
-                          <span>{ingredient}</span>
+                          {editingIngredientIndex === index ? (
+                            <>
+                              <Input
+                                value={tempIngredient}
+                                onChange={e => setTempIngredient(e.target.value)}
+                                className="flex-1 mr-2"
+                                autoFocus
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  const newIngredients = [...field.value];
+                                  newIngredients[index] = tempIngredient;
+                                  form.setValue("ingredients", newIngredients);
+                                  setEditingIngredientIndex(null);
+                                }}
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <span className="flex-1 mr-2">{ingredient}</span>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setEditingIngredientIndex(index);
+                                  setTempIngredient(ingredient);
+                                }}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                            </>
+                          )}
                           <Button
                             type="button"
                             variant="ghost"
@@ -317,14 +358,50 @@ export default function CreateRecipeDialog({
                         <Plus className="h-4 w-4" />
                       </Button>
                     </div>
-                    
                     <div className="mt-2 space-y-2">
                       {field.value.map((instruction, index) => (
                         <div key={index} className="flex items-start justify-between bg-gray-50 p-2 rounded">
-                          <div>
+                          <div className="flex-1 flex items-center">
                             <span className="font-bold mr-2">{index + 1}.</span>
-                            <span>{instruction}</span>
+                            {editingInstructionIndex === index ? (
+                              <Textarea
+                                value={tempInstruction}
+                                onChange={e => setTempInstruction(e.target.value)}
+                                className="flex-1 resize-none mr-2"
+                                rows={1}
+                                autoFocus
+                              />
+                            ) : (
+                              <span>{instruction}</span>
+                            )}
                           </div>
+                          {editingInstructionIndex === index ? (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                const newInstructions = [...field.value];
+                                newInstructions[index] = tempInstruction;
+                                form.setValue("instructions", newInstructions);
+                                setEditingInstructionIndex(null);
+                              }}
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                            </Button>
+                          ) : (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setEditingInstructionIndex(index);
+                                setTempInstruction(instruction);
+                              }}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          )}
                           <Button
                             type="button"
                             variant="ghost"
