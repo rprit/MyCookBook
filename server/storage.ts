@@ -81,25 +81,31 @@ export class MemStorage implements IStorage {
     );
   }
 
-  async createRecipe(insertRecipe: InsertRecipe): Promise<Recipe> {
+  async createRecipe(recipe: InsertRecipe): Promise<Recipe> {
     const id = this.nextRecipeId++;
     const now = new Date();
-    const recipe: Recipe = { 
-      ...insertRecipe, 
-      id, 
+    const recipeWithDates: Recipe = {
+      ...recipe,
+      id,
       createdAt: now,
+      updatedAt: now,
       rating: 0,
-      ratingCount: 0
+      ratingCount: 0,
+      imageUrl: recipe.imageUrl ?? null,
     };
-    this.recipes.set(id, recipe);
-    return recipe;
+    this.recipes.set(id, recipeWithDates);
+    return recipeWithDates;
   }
 
   async updateRecipe(id: number, updates: Partial<InsertRecipe>): Promise<Recipe | undefined> {
     const existingRecipe = this.recipes.get(id);
     if (!existingRecipe) return undefined;
-    
-    const updatedRecipe = { ...existingRecipe, ...updates };
+    const updatedRecipe: Recipe = {
+      ...existingRecipe,
+      ...updates,
+      updatedAt: new Date(),
+      imageUrl: updates.imageUrl !== undefined ? updates.imageUrl : existingRecipe.imageUrl,
+    };
     this.recipes.set(id, updatedRecipe);
     return updatedRecipe;
   }
@@ -151,7 +157,7 @@ export class MemStorage implements IStorage {
         allRecipes.sort((a, b) => b.name.localeCompare(a.name));
         break;
       case 'popular':
-        allRecipes.sort((a, b) => b.rating - a.rating);
+        allRecipes.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
         break;
     }
     

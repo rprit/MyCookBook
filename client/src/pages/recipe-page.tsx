@@ -76,7 +76,22 @@ export default function RecipePage() {
           <Card className="p-6 space-y-8">
             {/* Recipe Header */}
             <div className="flex items-center justify-between space-y-4">
-              <h1 className="text-4xl font-bold text-gray-900 flex-1">{recipe.name}</h1>
+              <div className="flex-1">
+                <h1 className="text-4xl font-bold text-gray-900">{recipe.name}</h1>
+                <div className="text-xs text-gray-500 mt-1 italic">
+                  {recipe.updatedAt && recipe.updatedAt !== recipe.createdAt ? (
+                    <div>
+                      Updated on: {new Date(recipe.updatedAt).toLocaleString()}
+                    </div>
+                  ) : (
+                    recipe.createdAt ? (
+                      <div>
+                        Created on: {new Date(recipe.createdAt).toLocaleString()}
+                      </div>
+                    ) : null
+                  )}
+                </div>
+              </div>
               <FavoriteButton recipeId={recipeId} showToast iconSize={28} className="ml-4" />
             </div>
             <p className="text-lg text-gray-600">{recipe.description}</p>

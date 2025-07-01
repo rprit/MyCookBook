@@ -24,6 +24,7 @@ export const recipes = pgTable("recipes", {
   rating: integer("rating").default(0),
   ratingCount: integer("rating_count").default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
