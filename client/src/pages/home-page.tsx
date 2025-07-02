@@ -7,6 +7,8 @@ import FilterAndSort from "@/components/filter-and-sort";
 import RecipeGrid from "@/components/recipe-grid";
 import CreateRecipeDialog from "@/components/create-recipe-dialog";
 import { Recipe } from "@shared/schema";
+import { useFavorites } from "@/context/favorites-context";
+import { Heart } from "lucide-react";
 
 export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -15,6 +17,8 @@ export default function HomePage() {
   const [visibleCount, setVisibleCount] = useState(6);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
+  const { favorites } = useFavorites();
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
   // Debounce search term
   useEffect(() => {
@@ -87,13 +91,26 @@ export default function HomePage() {
     setSortOption('newest');
   };
 
+  // Filter recipes if showFavoritesOnly is true
+  const filteredRecipes = showFavoritesOnly
+    ? (recipes || []).filter((r) => favorites.includes(String(r.id)))
+    : recipes || [];
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      
       <main className="container mx-auto px-4 py-6 flex-grow">
-        <SearchAndCreate onSearch={handleSearch} onCreate={handleCreateRecipe} />
-        
+        <SearchAndCreate onSearch={handleSearch} onCreate={handleCreateRecipe}
+          >
+          <button
+            className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium border transition-colors ${showFavoritesOnly ? "bg-primary text-white border-primary" : "bg-white text-primary border-primary"}`}
+            onClick={() => setShowFavoritesOnly((v) => !v)}
+            aria-pressed={showFavoritesOnly}
+          >
+            <Heart className={`h-5 w-5 ${showFavoritesOnly ? "fill-current text-white" : "fill-current text-primary"}`} />
+            {showFavoritesOnly ? "All Recipes" : "Favorites"}
+          </button>
+        </SearchAndCreate>
         <FilterAndSort 
           selectedTags={selectedTags}
           onTagChange={handleTagChange}
@@ -103,9 +120,9 @@ export default function HomePage() {
         />
         
         <RecipeGrid 
-          recipes={recipes || []}
+          recipes={filteredRecipes}
           loading={isLoading}
-          hasMore={!!recipes && recipes.length >= visibleCount}
+          hasMore={!showFavoritesOnly && !!recipes && recipes.length >= visibleCount}
           onLoadMore={handleLoadMore}
           onClearFilters={handleClearFilters}
         />

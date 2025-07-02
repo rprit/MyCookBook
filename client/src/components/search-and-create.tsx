@@ -1,14 +1,15 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, ReactNode } from "react";
 
 interface SearchAndCreateProps {
   onSearch: (value: string) => void;
   onCreate: () => void;
+  children?: ReactNode;
 }
 
-export default function SearchAndCreate({ onSearch, onCreate }: SearchAndCreateProps) {
+export default function SearchAndCreate({ onSearch, onCreate, children }: SearchAndCreateProps) {
   const [searchInput, setSearchInput] = useState("");
 
   const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,6 +38,7 @@ export default function SearchAndCreate({ onSearch, onCreate }: SearchAndCreateP
           onChange={handleSearchInput}
         />
       </div>
+      {children && <div>{children}</div>}
       <Button 
         className="bg-primary text-white hover:bg-primary/90 w-full md:w-auto"
         onClick={onCreate}
