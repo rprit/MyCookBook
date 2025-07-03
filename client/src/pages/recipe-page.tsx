@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Recipe } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useParams, useLocation } from "wouter";
-import { Loader2, Clock, Users, ArrowLeft, Edit } from "lucide-react";
+import { Loader2, Clock, Users, ArrowLeft, Edit, Trash2 } from "lucide-react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { Button } from "@/components/ui/button";
@@ -13,12 +13,14 @@ import EditRecipeDialog from "@/components/edit-recipe-dialog";
 import { useFavorites } from "@/context/favorites-context";
 import { useToast } from "@/hooks/use-toast";
 import FavoriteButton from "@/components/favorite-button";
+import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 
 export default function RecipePage() {
   const params = useParams();
   const id = params.id;
   const [, setLocation] = useLocation();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { isFavorite, toggleFavorite } = useFavorites();
   const { toast } = useToast();
 
@@ -55,6 +57,16 @@ export default function RecipePage() {
 
   const recipeId = String(recipe.id);
 
+  const handleDelete = async () => {
+    try {
+      await apiRequest("DELETE", `/api/recipes/${id}`);
+      toast({ title: "Recipe deleted", description: "The recipe has been deleted." });
+      setLocation("/");
+    } catch (err) {
+      toast({ title: "Error", description: "Failed to delete recipe." });
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -67,10 +79,16 @@ export default function RecipePage() {
                 Back to Recipes
               </Button>
             </Link>
-            <Button onClick={() => setIsEditDialogOpen(true)}>
-              <Edit className="w-4 h-4 mr-2" />
-              Edit Recipe
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={() => setIsEditDialogOpen(true)}>
+                <Edit className="w-4 h-4 mr-2" />
+                Edit Recipe
+              </Button>
+              <Button variant="destructive" onClick={() => setIsDeleteDialogOpen(true)}>
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete
+              </Button>
+            </div>
           </div>
 
           <Card className="p-6 space-y-8">
@@ -180,6 +198,22 @@ export default function RecipePage() {
           onSuccess={() => setIsEditDialogOpen(false)}
         />
       )}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogTitle>Delete Recipe</DialogTitle>
+          <DialogDescription>
+            Are you sure you want to delete this recipe? This action cannot be undone.
+          </DialogDescription>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
