@@ -1,9 +1,13 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { PostgresStorage } from "./postgres-storage";
+import { MemStorage } from "./storage";
 import { setupAuth } from "./auth";
 import { z } from "zod";
 import { insertRecipeSchema } from "@shared/schema";
+
+const usePostgres = process.env.USE_POSTGRES === "true";
+export const storage = usePostgres ? new PostgresStorage() : new MemStorage();
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Authentication removed
