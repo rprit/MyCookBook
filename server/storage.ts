@@ -356,6 +356,29 @@ export class MemStorage implements IStorage {
         servings: 2,
         tags: ["Quick & Easy", "Kid-Friendly", "Healthy"],
         authorId: 1
+      },
+      {
+        name: "Avocado Dessert",
+        description: "A healthy creamy treat when you crave for ice cream.",
+        ingredients: [
+          "1 Avocado",
+          "1/2 or 1 banana, as per taste",
+          "Sugar or honey as per taste"
+        ],
+        instructions: [
+          "Scoop an avocado into a blender/ mixder jar.",
+          "Add a banana or half of it, as per your preference.",
+          "Add a spoon or two of sugar, honey or any other sweetener as per preference.",
+          "SBlend it into a paste and transfer to a bowl.",
+          "Optional: Refrigerate it for 10-15 minutes and serve chilled.",
+          "Optional: Garnish with berries, nuts or dry fruits of your choice."
+        ],
+        imageUrl: "",
+        prepTime: 0,
+        cookTime: 5,
+        servings: 2,
+        tags: ["Quick & Easy", "Kid-Friendly", "Healthy"],
+        authorId: 1
       }
     ];
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import SearchAndCreate from "@/components/search-and-create";
@@ -13,67 +13,68 @@ import { Heart } from "lucide-react";
 export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [sortOption, setSortOption] = useState<'newest' | 'oldest' | 'az' | 'za' | 'popular'>('newest');
-  const [visibleCount, setVisibleCount] = useState(6);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [sortOption, setSortOption] = useState<"newest" | "oldest" | "az" | "za" | "popular">("newest");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { favorites } = useFavorites();
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+
+  const PAGE_SIZE = 6;
 
   // Debounce search term
   useEffect(() => {
     const timerId = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
     }, 500);
-
-    return () => {
-      clearTimeout(timerId);
-    };
+    return () => clearTimeout(timerId);
   }, [searchTerm]);
 
-  const buildQueryParams = () => {
-    const params = new URLSearchParams();
-    params.append('limit', visibleCount.toString());
-    
-    if (debouncedSearchTerm) {
-      params.append('search', debouncedSearchTerm);
-    }
-    
-    if (selectedTags.length > 0) {
-      params.append('tags', selectedTags.join(','));
-    }
-    
-    params.append('sort', sortOption);
-    
-    return params.toString();
-  };
+  // Query with infinite scrolling
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch,
+    isLoading,
+  } = useInfiniteQuery<Recipe[], Error>({
+    queryKey: ["recipes", debouncedSearchTerm, selectedTags, sortOption],
+    queryFn: async ({ pageParam = 0 }) => {
+      const params = new URLSearchParams();
+      params.append("limit", PAGE_SIZE.toString());
+      params.append("offset", pageParam.toString());
 
-  const { data: recipes, isLoading, refetch } = useQuery<Recipe[]>({
-    queryKey: [`/api/recipes?${buildQueryParams()}`],
+      if (debouncedSearchTerm) params.append("search", debouncedSearchTerm);
+      if (selectedTags.length > 0)
+        params.append("tags", selectedTags.join(","));
+      params.append("sort", sortOption);
+
+      const res = await fetch(`/api/recipes?${params}`);
+      if (!res.ok) throw new Error("Failed to fetch recipes");
+      return res.json();
+    },
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length === PAGE_SIZE ? allPages.length * PAGE_SIZE : undefined,
+    initialPageParam: 0,
   });
+
+  // Flatten the pages to get a single array of recipes
+  const recipes: Recipe[] = data?.pages.flat() ?? [];
 
   const handleSearch = (value: string) => {
     setSearchTerm(value);
-    setVisibleCount(6); // Reset pagination when searching
   };
 
   const handleTagChange = (tag: string) => {
-    // If tag is already selected, remove it, otherwise add it
-    setSelectedTags(prev => 
-      prev.includes(tag) 
-        ? prev.filter(t => t !== tag) 
-        : [...prev, tag]
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
     );
-    setVisibleCount(6); // Reset pagination when changing filters
   };
 
-  const handleSortChange = (value: 'newest' | 'oldest' | 'az' | 'za' | 'popular') => {
+  const handleSortChange = (
+    value: "newest" | "oldest" | "az" | "za" | "popular"
+  ) => {
     setSortOption(value);
-    setVisibleCount(6); // Reset pagination when changing sort
-  };
-
-  const handleLoadMore = () => {
-    setVisibleCount(prev => prev + 6);
   };
 
   const handleCreateRecipe = () => {
@@ -88,48 +89,71 @@ export default function HomePage() {
   const handleClearFilters = () => {
     setSearchTerm("");
     setSelectedTags([]);
-    setSortOption('newest');
+    setSortOption("newest");
   };
 
   // Filter recipes if showFavoritesOnly is true
   const filteredRecipes = showFavoritesOnly
-    ? (recipes || []).filter((r) => favorites.includes(String(r.id)))
-    : recipes || [];
+    ? recipes.filter((r) => favorites.includes(String(r.id)))
+    : recipes;
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="container mx-auto px-4 py-6 flex-grow">
-        <SearchAndCreate onSearch={handleSearch} onCreate={handleCreateRecipe}
-          >
+        <SearchAndCreate onSearch={handleSearch} onCreate={handleCreateRecipe}>
           <button
-            className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium border transition-colors ${showFavoritesOnly ? "bg-primary text-white border-primary" : "bg-white text-primary border-primary"}`}
+            className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium border transition-colors ${
+              showFavoritesOnly
+                ? "bg-primary text-white border-primary"
+                : "bg-white text-primary border-primary"
+            }`}
             onClick={() => setShowFavoritesOnly((v) => !v)}
             aria-pressed={showFavoritesOnly}
           >
-            <Heart className={`h-5 w-5 ${showFavoritesOnly ? "fill-current text-white" : "fill-current text-primary"}`} />
+            <Heart
+              className={`h-5 w-5 ${
+                showFavoritesOnly
+                  ? "fill-current text-white"
+                  : "fill-current text-primary"
+              }`}
+            />
             {showFavoritesOnly ? "All Recipes" : "Favorites"}
           </button>
         </SearchAndCreate>
-        <FilterAndSort 
+
+        <FilterAndSort
           selectedTags={selectedTags}
           onTagChange={handleTagChange}
           sortOption={sortOption}
           onSortChange={handleSortChange}
           onRemoveTag={(tag) => handleTagChange(tag)}
         />
-        
-        <RecipeGrid 
+
+        <RecipeGrid
           recipes={filteredRecipes}
-          loading={isLoading}
-          hasMore={!showFavoritesOnly && !!recipes && recipes.length >= visibleCount}
-          onLoadMore={handleLoadMore}
+          loading={isLoading || isFetchingNextPage}
+          hasMore={!showFavoritesOnly && hasNextPage}
+          onLoadMore={() => {
+            // Find the last visible card before loading more
+            const grid = document.getElementById('recipe-grid');
+            const cards = grid ? grid.querySelectorAll('.recipe-card') : [];
+            const lastCard = cards.length ? cards[cards.length - 1] : null;
+            const lastCardRect = lastCard ? lastCard.getBoundingClientRect() : null;
+            const lastCardY = lastCardRect ? window.scrollY + lastCardRect.top : null;
+            fetchNextPage().then(() => {
+              // After new cards are loaded, scroll to the last card's previous position
+              if (lastCardY !== null) {
+                window.scrollTo({ top: lastCardY, behavior: 'auto' });
+              }
+            });
+          }}
           onClearFilters={handleClearFilters}
         />
       </main>
-      
+
       <Footer />
-      
+
       <CreateRecipeDialog
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
