@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
@@ -13,7 +13,9 @@ import { Heart } from "lucide-react";
 export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [sortOption, setSortOption] = useState<"newest" | "oldest" | "az" | "za" | "popular">("newest");
+  const [sortOption, setSortOption] = useState<
+    "newest" | "oldest" | "az" | "za" | "popular"
+  >("newest");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { favorites } = useFavorites();
@@ -42,7 +44,7 @@ export default function HomePage() {
     queryFn: async ({ pageParam = 0 }) => {
       const params = new URLSearchParams();
       params.append("limit", PAGE_SIZE.toString());
-      params.append("offset", pageParam.toString());
+      params.append("offset", (pageParam as number).toString());
 
       if (debouncedSearchTerm) params.append("search", debouncedSearchTerm);
       if (selectedTags.length > 0)
@@ -54,16 +56,19 @@ export default function HomePage() {
       return res.json();
     },
     getNextPageParam: (lastPage, allPages) =>
-      lastPage.length === PAGE_SIZE ? allPages.length * PAGE_SIZE : undefined,
+      lastPage.length === PAGE_SIZE
+        ? allPages.length * PAGE_SIZE
+        : undefined,
     initialPageParam: 0,
   });
 
-  // Flatten the pages to get a single array of recipes
-  const recipes: Recipe[] = data?.pages.flat() ?? [];
+  // Memoize recipes so they don't get recreated each render
+  const recipes: Recipe[] = useMemo(
+    () => data?.pages.flat() ?? [],
+    [data]
+  );
 
-  const handleSearch = (value: string) => {
-    setSearchTerm(value);
-  };
+  const handleSearch = (value: string) => setSearchTerm(value);
 
   const handleTagChange = (tag: string) => {
     setSelectedTags((prev) =>
@@ -73,13 +78,9 @@ export default function HomePage() {
 
   const handleSortChange = (
     value: "newest" | "oldest" | "az" | "za" | "popular"
-  ) => {
-    setSortOption(value);
-  };
+  ) => setSortOption(value);
 
-  const handleCreateRecipe = () => {
-    setIsCreateDialogOpen(true);
-  };
+  const handleCreateRecipe = () => setIsCreateDialogOpen(true);
 
   const handleCreateSuccess = () => {
     refetch();
@@ -135,17 +136,26 @@ export default function HomePage() {
           loading={isLoading || isFetchingNextPage}
           hasMore={!showFavoritesOnly && hasNextPage}
           onLoadMore={() => {
-            // Find the last visible card before loading more
-            const grid = document.getElementById('recipe-grid');
-            const cards = grid ? grid.querySelectorAll('.recipe-card') : [];
-            const lastCard = cards.length ? cards[cards.length - 1] : null;
-            const lastCardRect = lastCard ? lastCard.getBoundingClientRect() : null;
-            const lastCardY = lastCardRect ? window.scrollY + lastCardRect.top : null;
+            const prevScroll = window.scrollY; // current scroll position
+            const prevHeight = document.body.scrollHeight; // total height before new cards
+
             fetchNextPage().then(() => {
-              // After new cards are loaded, scroll to the last card's previous position
-              if (lastCardY !== null) {
-                window.scrollTo({ top: lastCardY, behavior: 'auto' });
-              }
+              requestAnimationFrame(() => {
+                const newHeight = document.body.scrollHeight;
+                const heightDiff = newHeight - prevHeight;
+
+                // Keep the viewport anchored by restoring relative position
+                window.scrollTo({
+                  top: prevScroll,
+                  behavior: "auto",
+                });
+
+                // Or, if you want to scroll *into* the new batch:
+                // window.scrollTo({
+                //   top: prevScroll + heightDiff,
+                //   behavior: "smooth",
+                // });
+              });
             });
           }}
           onClearFilters={handleClearFilters}
