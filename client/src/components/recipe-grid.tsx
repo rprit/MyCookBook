@@ -46,9 +46,13 @@ export default function RecipeGrid({
 
   return (
     <div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Add an ID so HomePage can find this grid */}
+      <div id="recipe-grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {recipes.map((recipe) => (
-          <RecipeCard key={recipe.id} recipe={recipe} />
+          // Wrap each card in a div with .recipe-card
+          <div key={recipe.id} className="recipe-card">
+            <RecipeCard key={recipe.id} recipe={recipe} />
+          </div>
         ))}
       </div>
       

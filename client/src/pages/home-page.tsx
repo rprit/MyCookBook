@@ -136,25 +136,14 @@ export default function HomePage() {
           loading={isLoading || isFetchingNextPage}
           hasMore={!showFavoritesOnly && hasNextPage}
           onLoadMore={() => {
-            const prevScroll = window.scrollY; // current scroll position
-            const prevHeight = document.body.scrollHeight; // total height before new cards
-
+            const prevCount = recipes.length;
             fetchNextPage().then(() => {
               requestAnimationFrame(() => {
-                const newHeight = document.body.scrollHeight;
-                const heightDiff = newHeight - prevHeight;
-
-                // Keep the viewport anchored by restoring relative position
-                window.scrollTo({
-                  top: prevScroll,
-                  behavior: "auto",
-                });
-
-                // Or, if you want to scroll *into* the new batch:
-                // window.scrollTo({
-                //   top: prevScroll + heightDiff,
-                //   behavior: "smooth",
-                // });
+                const grid = document.getElementById("recipe-grid");
+                if (!grid) return;
+                const cards = grid.querySelectorAll(".recipe-card");
+                const newCard = cards[prevCount]; // first newly added
+                newCard?.scrollIntoView({ behavior: "smooth", block: "start" });
               });
             });
           }}
